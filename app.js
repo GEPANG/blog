@@ -3,21 +3,22 @@ const handleBlogRouter=require('./src/router/blog');
 const handleUserRouter=require('./src/router/user');
 
 //post data处理
-function getPostData(req,res){
+const getPostData=(req)=>{
     const promise=new Promise((resolve,reject)=>{
         if(req.method!=='POST'){
             resolve({})
             return;
-        }
-        if(req.setHeader['Content-type']!=='application/json'){
+        }        
+        if(req.headers['content-type'] !== 'application/json'){
             resolve({})
             return;
         }
+
         let postData='';
-        req.on("data",(chunk)=>{
-            postData+=chunk;            
-        })
-        req.end("end",()=>{
+        req.on("data",(chunk)=>{     
+            postData += chunk.toString();    
+        })    
+        req.on("end",()=>{
           if(!postData){
             resolve({});
             return
@@ -47,17 +48,26 @@ const serverHandle=(req,res)=>{
         return
     } */
 
-    getPostData(req,res).then(postData=>{
+    getPostData(req).then(postData=>{
         req.body=postData;
 
         const blogData=handleBlogRouter(req,res);
-        if(blogData){
+        /* if(blogData){
             res.end(
                 JSON.stringify(blogData)
             );
             return
-        }
-        
+        } */
+       if(blogData){
+            blogData.then((Data)=>{
+                res.end(
+                    JSON.stringify(Data)
+                )
+            })
+            return;
+       }
+
+
         //处理user路由
         const userData=handleUserRouter(req,res);
         if(userData){
@@ -71,7 +81,7 @@ const serverHandle=(req,res)=>{
         res.writeHead(404,{"Content-type":"text/plain"});
         res.write('404 NOT Found\n');
         res.end();
-        });   
+    });   
 }
 
 module.exports=serverHandle;
