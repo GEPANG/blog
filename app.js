@@ -48,6 +48,20 @@ const serverHandle=(req,res)=>{
         return
     } */
 
+
+    //解析cookie
+    req.cookie={};
+    const cookieStr=req.headers.cookie || '';
+    cookieStr.split(";").forEach(item => {
+        if(!item){
+            return;
+        }
+        const arr=item.split('=');
+        const key=arr[0].trim();
+        const val=arr[1].trim();
+        req.cookie[key]=val;
+    });
+
     getPostData(req).then(postData=>{
         req.body=postData;
 
@@ -69,12 +83,22 @@ const serverHandle=(req,res)=>{
 
 
         //处理user路由
-        const userData=handleUserRouter(req,res);
+        /* const userData=handleUserRouter(req,res);
         if(userData){
             res.end(
                 JSON.stringify(userData)
             );
             return
+        } */
+
+        const userData=handleUserRouter(req,res);
+        if(userData){
+            userData.then(data=>{
+                res.end(
+                    JSON.stringify(data)
+                )
+            })
+            return;
         }
 
         //处理404页面
