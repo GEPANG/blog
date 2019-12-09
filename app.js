@@ -2,6 +2,17 @@ const querystring=require('querystring');
 const handleBlogRouter=require('./src/router/blog');
 const handleUserRouter=require('./src/router/user');
 
+//session 数据
+const SESSION_DATA={};
+
+//设置过期时间s
+const geteExpires=()=>{
+    const d=new Date();
+    d.setTime(d.getTime()+(24*60*60*1000));
+    return d.toGMTString();
+}
+
+
 //post data处理
 const getPostData=(req)=>{
     const promise=new Promise((resolve,reject)=>{
@@ -48,7 +59,6 @@ const serverHandle=(req,res)=>{
         return
     } */
 
-
     //解析cookie
     req.cookie={};
     const cookieStr=req.headers.cookie || '';
@@ -62,6 +72,20 @@ const serverHandle=(req,res)=>{
         req.cookie[key]=val;
     });
 
+    //解析session
+    let userId=req.cookie.userid;
+    let needCookie=false;
+    if(userId){
+        if(!SESSION_DATA[userId]){
+            SESSION_DATA[userId]={};
+        } 
+    }else{
+        needCookie=true;
+        userId=`${Date.now()}_${Math.random()}`;
+        SESSION_DATA[userId]={};
+    }    
+    req.session=SESSION_DATA[userId];
+
     getPostData(req).then(postData=>{
         req.body=postData;
 
@@ -74,6 +98,9 @@ const serverHandle=(req,res)=>{
         } */
        if(blogData){
             blogData.then((Data)=>{
+                if(needCookie){
+                    res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${geteExpires()}`);
+                }
                 res.end(
                     JSON.stringify(Data)
                 )
@@ -94,6 +121,9 @@ const serverHandle=(req,res)=>{
         const userData=handleUserRouter(req,res);
         if(userData){
             userData.then(data=>{
+                if(needCookie){
+                    res.setHeader('Set-Cookie',`userid=${userId};path=/;httpOnly;expires=${geteExpires()}`);
+                }
                 res.end(
                     JSON.stringify(data)
                 )

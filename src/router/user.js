@@ -1,12 +1,12 @@
 const login=require('../controller/user');
 const {successModule,errrorModule}=require('../model/resModel');
 
-const geteExpires=()=>{
+/* const geteExpires=()=>{
     const d=new Date();
     d.setTime(d.getTime+(24*60*60*1000));
     return d.toGMTString();
 }
-
+ */
 const handleUserRouter=(req,res)=>{
     const method=req.method;   
     //POST
@@ -24,7 +24,10 @@ const handleUserRouter=(req,res)=>{
         const userResult=login(username,password);
         return userResult.then(data=>{
             if(data.username){
-                res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${geteExpires()}`);
+                // res.setHeader('Set-Cookie',`username=${data.username};path=/;httpOnly;expires=${geteExpires()}`);
+                
+                req.session.username=data.username;
+                req.session.realname=data.realname;
                 return new successModule();
             };
             return new errrorModule("登录失败！！");
@@ -32,9 +35,9 @@ const handleUserRouter=(req,res)=>{
     }    
 
     if(method ==='GET' && req.path==='/api/user/login-test'){
-        if(req.cookie.username){
+        if(req.session.username){
             return Promise.resolve(new successModule({
-                username:req.cookie.username
+                session:req.session
             }))
         }        
         return Promise.resolve(new successModule("尚未登录！"))
