@@ -39,7 +39,9 @@ const getDetail=(id)=>{
         }
     ] */
     const sql=`select * from blogs where id='${id}' `;
-    return exec(sql);
+    return exec(sql).then(Rows=>{
+        return Rows[0] || '';
+    });
 }
 
 const newBlog=(blogData ={})=>{

@@ -6,6 +6,15 @@ const {
     delBlog}=require('../controller/blog');
 const {successModule,errrorModule}=require('../model/resModel');
 
+//登录检测
+const loginCheck=(req)=>{
+    if(!req.session.username){
+        return Promise.resolve(
+            new successModule('尚未登录！！')
+        );
+    }
+}
+
 const handleBlogRouter=(req,res)=>{//写接口    
     const method=req.method; 
     const id=req.query.id;
@@ -22,8 +31,17 @@ const handleBlogRouter=(req,res)=>{//写接口
         }
         new errrorModule("获取失败！！");  */   
 
-        const author=req.query.author;
-        const keyword=req.query.keyword;
+        let author=req.query.author || '';
+        const keyword=req.query.keyword || '';
+
+       if(req.query.isadmin){
+            const loginCheckResult=loginCheck(req);
+            if(loginCheckResult){
+                return loginCheckResult;
+            }
+            author=req.session.username;
+       }
+       
         const ListData=getList(author,keyword);
         return ListData.then(Data=>{
             return new successModule(Data);
@@ -54,8 +72,12 @@ const handleBlogRouter=(req,res)=>{//写接口
         }
         return new errrorModule('新增失败!!'); */
 
+        const loginCheckResult=loginCheck(req);
+        if(loginCheckResult){
+            return loginCheckResult;
+        }
         const blogData=req.body;
-        req.body.author='zhangsan';
+        req.body.author=req.session.username;
         const newResult=newBlog(blogData);
         return newResult.then((data)=>{
             return new successModule(data)
@@ -71,6 +93,12 @@ const handleBlogRouter=(req,res)=>{//写接口
         if(updataResult){
             return new successModule();
         } */
+        
+        const loginCheckResult=loginCheck(req);
+        if(loginCheckResult){
+            return loginCheckResult;
+        }
+
         const blogData=req.body;
         const updataResult=updateBlog(id,blogData);
         return updataResult.then(bool=>{
@@ -91,9 +119,14 @@ const handleBlogRouter=(req,res)=>{//写接口
         if(delResult){
             return new successModule();
         } */
-        const author='zhangsan';
+        
+        const loginCheckResult=loginCheck(req);
+        if(loginCheckResult){
+            return loginCheckResult;
+        }
+        const author=req.session.username;
         const delResult=delBlog(id,author);
-       return delResult.then(bool=>{
+        return delResult.then(bool=>{
            if(bool){
                return new successModule();
            }else{
