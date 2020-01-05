@@ -170,6 +170,17 @@
             //清空日志(access.log)，继续积累写日志
             echo ''>access.log      
             
+        命令行执行copy.sh文件通过===》utils目录下==》sh copy.sh
+        max系统可以通过crontab来设置，让其自动在规定的时间执行文件
+        
+        //linux和max的命名（用于服务端）
+        //设置定时任务，
+        格式：* * * * * command===========>命令        
+        * * * * *===>分钟、小时、天、月份、星期    
+        * 0 * * *   command(脚本目录/i/30.mooc_nodejs/blog-1/src/utils/copy.sh) =====>每天0晨执行
+        crontab -l===>当前有那些执行任务
+
+        
         2>readline===>逐行读取文件
             const fs=require('fs');
             const path=require('path');
