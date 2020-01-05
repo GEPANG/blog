@@ -22,10 +22,10 @@ const getList=(author,keyword)=>{
         sql +=`and author='${author}'`;
     }
     if(keyword){
-        sql+=`and title like '%${keyword}%'`;
+        sql +=`and title like '%${keyword}%'`;
     }
 
-    return exec(sql);
+    return exec(sql)
 }
 
 const getDetail=(id)=>{
@@ -40,8 +40,8 @@ const getDetail=(id)=>{
     ] */
     const sql=`select * from blogs where id='${id}' `;
     return exec(sql).then(Rows=>{
-        return Rows[0] || '';
-    });
+        return Rows[0] || {};
+    })
 }
 
 const newBlog=(blogData ={})=>{

@@ -1,6 +1,6 @@
 const env=process.env.NODE_ENV;
 
-let CONF_MYSQL={};
+let CONF_MYSQL;
 let CONF_REDIS;
 if(env==='dev'){
     CONF_MYSQL={
@@ -29,5 +29,6 @@ if(env==='production'){
     }
 }
 module.exports={
-    CONF_MYSQL,CONF_REDIS
+    CONF_MYSQL,
+    CONF_REDIS
 }

@@ -7,7 +7,7 @@ redisClient.on('error',err=>{
 })
 
 function set(key,val){
-    if(val === 'object'){
+    if(typeof val === 'object'){
         val=JSON.stringify(val);
     }
     redisClient.set(key,val,redis.print);
@@ -18,9 +18,11 @@ function get(key){
         redisClient.get(key,(err,data)=>{
             if(err){
                 reject(err);
+                return
             }
-            if(data===null){
+            if(data==null){
                 resolve(null);
+                return
             }
 
             try{                
@@ -31,11 +33,11 @@ function get(key){
                 resolve(data);
             }
         })
-    });
-    
+    });    
     return promise;
 }
 
 module.exports={
-    set,get
+    set,
+    get
 }

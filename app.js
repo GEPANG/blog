@@ -1,3 +1,4 @@
+// const env=process.env.NODE_ENV;
 const querystring=require('querystring');
 const handleBlogRouter=require('./src/router/blog');
 const handleUserRouter=require('./src/router/user');
@@ -95,10 +96,10 @@ const serverHandle=(req,res)=>{
         set(userId,{});
     }
 
-    req.session=userId;
-    get(req.session).then(sessionData=>{
+    req.sessionId=userId;
+    get(req.sessionId).then(sessionData=>{
         if(sessionData == null){
-            set(userId,{});
+            set(req.sessionId,{});
             req.session={};
         }else{            
             req.session=sessionData;

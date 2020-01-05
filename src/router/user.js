@@ -1,4 +1,4 @@
-const login=require('../controller/user');
+const {login}=require('../controller/user');
 const {successModule,errrorModule}=require('../model/resModel');
 const {set}=require('../db/redis');
 /* const geteExpires=()=>{
@@ -10,7 +10,7 @@ const {set}=require('../db/redis');
 const handleUserRouter=(req,res)=>{
     const method=req.method;   
     //POST
-    if(method==='POST' &&  req.path==='/api/user/login'){
+    if(method ==='POST' &&  req.path==='/api/user/login'){
        /*  return {
             "msg":'这是博客登录接口'
         } */
@@ -19,8 +19,7 @@ const handleUserRouter=(req,res)=>{
         if(userResult){
             return new successModule();
         };
-        return new errrorModule("登录失败！！"); */
-        
+        return new errrorModule("登录失败！！"); */   
         const {username,password}=req.body;
         const userResult=login(username,password);
         return userResult.then(data=>{
@@ -31,6 +30,7 @@ const handleUserRouter=(req,res)=>{
 
                 //同步到redis;
                 set(req.sessionId,req.session);
+                
                 return new successModule();
             };
             return new errrorModule("登录失败！！");

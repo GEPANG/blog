@@ -81,3 +81,123 @@
 17>数据库对更新和删除
 18>数据库对登录
 19>cookie
+    1>app.js==>解析cookie
+    2>controller==>user.js==>登录验证
+    3>user.js==>操作cookie==>res.setHeader
+20>cookie限制,防止前端去修改
+    1>httpOnly==>只允许后端改，前端不行
+    2>expires==>cookie过期时间设置，不允许一直存在;
+21>session设置
+    1>写一个session数据变量
+    2>在cookie中使用userid来对应session数据
+    3>检测cookie中是否有userid
+    4>对session数据处理及判断
+    5>没有userid写上userid，从user.js里复制过来.
+13>redis安装
+    1>官网下载
+    2>启动redis:redis-server.exe redis.windows.conf
+    3>服务:redis-cli
+    4>在项目下做成工具
+14>session写入redis
+    redis对应有set和get方法。
+    1>app.js==>解析session用redis，
+    2>user.js===>session同步到redis.
+15>nginx
+    nginx下载
+    1>配置nginx==>conf==>nginx.conf文件
+        location / {
+            proxy_pass http://localhost:8002;//前端端口对应页面
+        }
+        location /api/ {
+            proxy_pass http://localhost:5000;//后端端口对应接口
+            proxy_set_header Host $host;
+        }
+16>登录检测
+    1>blog.js==>需要的接口用到登录检测.
+    2>获取博客列表===>通过前端url传值(isadmin)来检测，强制检测自己的博客文章。
+
+17>日志
+    1>文件操作
+        
+    2>stream写日志
+    3>在blog-1下建一个文件logs===>access.log
+                             ===>error.log
+                             ===>event.log
+
+    4>src下建立一个utils文件===>log.js
+        //写日志。
+        const fs=require('fs');
+        const path=require('path');        
+        
+        //3.写日志
+        function writeLog(writeStream,log){
+            writeStream.write(log+'\n');//关键代码；
+        }
+        
+        //1.生成write stream
+        function createWriteStream(fileName){
+            //获取文件名
+            const fullName=path.join(__dirname,'../','../','logs',fileName);
+            //创建写入文件流
+            const writeStream=fs.createWriteStream(fullName,{
+                flags:'a',//追加写入
+            });
+            return writeStream;
+        }
+        
+        //2.写访问日志
+        const accessWriteStream=createWriteStream('access.log');
+        function access(log){
+            writeLog(accessWriteStream,log);
+        }
+        
+        //
+        module.exports={
+            access
+        }
+
+    5>app.js写入访问日志
+    6>utils文件下建立===>copy.sh
+        1>  //执行文件
+            #!/bin/sh
+
+            //进入写日志目录
+            cd /i/30.mooc_nodejs/blog-1/logs  
+
+            //将access.log拷贝并重命名为《$(date + %Y-%m-%d).access.log》
+            cp access.log $(date +%Y-%m-%d).access.log;     //date后面需要有空格
+
+            //清空日志(access.log)，继续积累写日志
+            echo ''>access.log      
+            
+        2>readline===>逐行读取文件
+            const fs=require('fs');
+            const path=require('path');
+            const readline=require('readline');            
+            //文件名
+            const fileName=path.join(__dirname,'../','../','logs','access.log');            
+            //创建 read stream
+            const readStream=fs.createReadStream(fileName);            
+            //创建readline(基于stream)对象
+            const rl=readline.createInterface({
+                input:readStream,
+            });            
+            let chromeNum=0;
+            let sum=0;            
+            //逐行读取
+            rl.on('line',(lineDate)=>{
+                if(!lineDate){
+                    return
+                }            
+                //记录总行数
+                sum++;            
+                const arr=lineDate.split("--");
+                if(arr[2] && arr[2].indexOf('Chrome')>0){
+                    //累加chrom数量
+                    chromeNum++;
+                }
+            });           
+            //监听读取完成
+            rl.on('close',()=>{
+                console.log('chrome 占比:'+(chromeNum/sum)*100);
+            });

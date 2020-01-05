@@ -76,9 +76,9 @@ const handleBlogRouter=(req,res)=>{//写接口
         if(loginCheckResult){
             return loginCheckResult;
         }
-        const blogData=req.body;
+        // const blogData=req.body;
         req.body.author=req.session.username;
-        const newResult=newBlog(blogData);
+        const newResult=newBlog(req.body);
         return newResult.then((data)=>{
             return new successModule(data)
        })
@@ -99,14 +99,13 @@ const handleBlogRouter=(req,res)=>{//写接口
             return loginCheckResult;
         }
 
-        const blogData=req.body;
-        const updataResult=updateBlog(id,blogData);
+        // const blogData=req.body;
+        const updataResult=updateBlog(id,req.body);
         return updataResult.then(bool=>{
             if(bool){
                 return new successModule("更新博客成功!!");
-            }else{
-                return new errrorModule("更新博客失败!!!!");
-            }            
+            }
+            return new errrorModule("更新博客失败!!!!");                      
         })
     }
 
@@ -129,9 +128,8 @@ const handleBlogRouter=(req,res)=>{//写接口
         return delResult.then(bool=>{
            if(bool){
                return new successModule();
-           }else{
-                return new errrorModule("删除博客失败!!");
            }
+            return new errrorModule("删除博客失败!!");           
        })
     }
 }
